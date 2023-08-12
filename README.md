@@ -1,4 +1,2 @@
-# sinewize
-Anti-linewize
-Simply Open https://texrextex.github.io/sinewize/ and keep it open!
-It doesn't need to be the selected page, just keep it open in the background.
+# My Dev Site
+This is different from my bio site, as this one should be more improved and focus on design rather than documentation.
