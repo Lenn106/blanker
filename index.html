@@ -1,45 +1,236 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>SineWize</title>
-    <link rel="icon" href="icon.png" type="image/png">
-    <style>
-      @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300, 400");
-      @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
-      iframe {
-        position:absolute;
-        top:-150px;
-        border:none;
-      }
-      body {
-        background-color: #935d8c;
-        background-image: url(https://optifinesource.co.uk/assets/img/overlay.png), linear-gradient(45deg, #e37682 15%, #5f4d93 85%);
-        font-weight: 300;
-        background-attachment: fixed;
-      }
-      html,*{
-        color: white;
-        border-color: white;
-        background-color:rgba(0,0,0,0);
-        transition: .3s ease-out;
-        outline:none;
-      }
-      div {
-        border: 1px solid white;
-        border-radius:10px;
-      }
-    </style>
-  </head>
-  <body>
-    <iframe id="iframe" src="https://autologout.linewize.net/"></iframe>
-    <h1>This Is SineWize Home Page!</h1>
-    <p>Keep me open for unblock</p>
-  </body>
-  <script type="text/javascript">
-    function test() {
-      document.getElementById('iframe').src="https://autologout.linewize.net/?"+new Date().getTime();
-      setTimeout(function(){test()},2000);
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #000;
     }
-    test();
+
+    #particles-js {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+    }
+
+    .game-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .rocket {
+      width: 120px;
+      height: 120px;
+      background-size: cover;
+      position: absolute;
+      cursor: grab;
+      transform-origin: center;
+      animation: none;
+      user-drag: none;
+    }
+
+    .rocket.dragging {
+      cursor: grabbing;
+    }
+
+    .explosion {
+      width: 80px;
+      height: 80px;
+      position: absolute;
+      background-size: cover;
+      display: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <title>Draggable Rockets with Particle Background</title>
+</head>
+<body>
+  <div id="particles-js"></div>
+  <div class="game-container"></div>
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 100 },
+        color: { value: "#ffffff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5, random: true },
+        size: { value: 3, random: true },
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "bottom",
+          random: true,
+          straight: false,
+          outMode: "out",
+          bounce: false,
+        },
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "repulse" },
+        },
+        modes: { repulse: { distance: 50 } },
+      },
+    });
+
+    const characterImages = [
+      'https://github.com/Lenn106/lenn106.github.io/blob/da5b1a3f58e25391d9124205de83f6868ab63007/sprites/amongusblue.png?raw=true',
+      'https://github.com/Lenn106/lenn106.github.io/blob/da5b1a3f58e25391d9124205de83f6868ab63007/sprites/amongusgreen.png?raw=true',
+      'https://github.com/Lenn106/lenn106.github.io/blob/da5b1a3f58e25391d9124205de83f6868ab63007/sprites/amongusred.png?raw=true',
+      'https://github.com/Lenn106/lenn106.github.io/raw/master/sprites/pinkamongus.png?raw=true'
+    ];
+
+    const gameContainer = document.querySelector('.game-container');
+    const deathSound = new Audio('https://github.com/Lenn106/lenn106.github.io/raw/master/sound-effects/death.mp3');
+    const explosionImage = 'https://github.com/Lenn106/lenn106.github.io/blob/master/sprites/deatheffect.gif?raw=true';
+
+    function createRocket(x, y, pathX, pathY, image) {
+      const rocket = document.createElement('div');
+      rocket.className = 'rocket';
+      rocket.style.left = `${x}px`;
+      rocket.style.top = `${y}px`;
+      rocket.style.backgroundImage = `url("${image}")`;
+
+      rocket.pathX = pathX;
+      rocket.pathY = pathY;
+      rocket.rotation = 0;
+      rocket.deathTimer = null;
+
+      rocket.addEventListener('mousedown', (e) => {
+        if (e.button === 0) {
+          e.preventDefault();
+          rocket.classList.add('dragging');
+          isDragging = true;
+          initialMouseX = e.clientX;
+          initialMouseY = e.clientY;
+          initialRocketX = rocket.offsetLeft;
+          initialRocketY = rocket.offsetTop;
+          rocket.style.animationPlayState = 'paused';
+        }
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging && rocket.classList.contains('dragging')) {
+          const offsetX = e.clientX - initialMouseX;
+          const offsetY = e.clientY - initialMouseY;
+          rocket.style.left = `${initialRocketX + offsetX}px`;
+          rocket.style.top = `${initialRocketY + offsetY}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging && rocket.classList.contains('dragging')) {
+          isDragging = false;
+          rocket.classList.remove('dragging');
+          rocket.style.animationPlayState = 'running';
+        }
+      });
+
+      rocket.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const x = e.clientX;
+        const y = e.clientY;
+        killRocket(rocket, x, y);
+      });
+
+      gameContainer.appendChild(rocket);
+
+      return rocket;
+    }
+
+    function createExplosion(x, y) {
+      const explosion = document.createElement('div');
+      explosion.className = 'explosion';
+      explosion.style.left = `${x - 40}px`;
+      explosion.style.top = `${y - 40}px`;
+      explosion.style.backgroundImage = `url("${explosionImage}")`;
+      gameContainer.appendChild(explosion);
+      return explosion;
+    }
+
+    function respawnRocket(rocket) {
+      const randomX = Math.random() * (window.innerWidth - 120);
+      const randomY = Math.random() * (window.innerHeight - 120);
+      const randomPathX = Math.random() < 0.5 ? 1 : -1;
+      const randomPathY = Math.random() < 0.5 ? 1 : -1;
+      const randomImage = characterImages[Math.floor(Math.random() * characterImages.length)];
+      rocket.style.left = `${randomX}px`;
+      rocket.style.top = `${randomY}px`;
+
+      rocket.pathX = randomPathX;
+      rocket.pathY = randomPathY;
+      rocket.style.backgroundImage = `url("${randomImage}")`;
+    }
+
+    function killRocket(rocket, x, y) {
+      if (!rocket.deathTimer) {
+        rocket.deathTimer = setTimeout(() => {
+          const explosion = createExplosion(x, y);
+          explosion.style.display = 'block';
+          deathSound.currentTime = 0;
+          deathSound.play();
+
+          respawnRocket(rocket);
+
+          setTimeout(() => {
+            explosion.remove();
+            rocket.deathTimer = null;
+          }, 1000);
+        }, 0);
+      }
+    }
+
+    function checkBounds(rocket) {
+      const rocketRect = rocket.getBoundingClientRect();
+      if (rocketRect.left <= 0 || rocketRect.right >= window.innerWidth) {
+        rocket.pathX = -rocket.pathX;
+      }
+      if (rocketRect.top <= 0 || rocketRect.bottom >= window.innerHeight) {
+        rocket.pathY = -rocket.pathY;
+      }
+    }
+
+    const rockets = [];
+
+    function startAnimation() {
+      for (let i = 0; i < 5; i++) {
+        const randomX = Math.random() * (window.innerWidth - 120);
+        const randomY = Math.random() * (window.innerHeight - 120);
+        const randomPathX = Math.random() < 0.5 ? 1 : -1;
+        const randomPathY = Math.random() < 0.5 ? 1 : -1;
+        const randomImage = characterImages[Math.floor(Math.random() * characterImages.length)];
+        const rocket = createRocket(randomX, randomY, randomPathX, randomPathY, randomImage);
+        rockets.push(rocket);
+      }
+
+      function moveRockets() {
+        rockets.forEach((rocket) => {
+          checkBounds(rocket);
+          rocket.style.transform = `translateX(${rocket.pathX * 2}px) translateY(${rocket.pathY * 2}px) rotate(${rocket.rotation}deg)`;
+          rocket.rotation += 2;
+        });
+
+        requestAnimationFrame(moveRockets);
+      }
+
+      moveRockets();
+    }
+
+    let isDragging = false;
+    let initialMouseX = 0;
+    let initialMouseY = 0;
+    let initialRocketX = 0;
+    let initialRocketY = 0;
+
+    startAnimation();
   </script>
+</body>
 </html>
