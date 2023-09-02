@@ -148,7 +148,7 @@
         }
 
         createSocialMediaIcon('images/discord.svg', 'https://discord.gg/W5PZSxaMgk');
-        createSocialMediaIcon('images/yticon.png', 'https://www.youtube.com/user/lenn106');
+        createSocialMediaIcon('images/yticon.png', 'https://www.youtube.com/@lenn106');
         createSocialMediaIcon('images/github.png', 'https://github.com/lenn106');
 
         // Rainbow switch functionality
