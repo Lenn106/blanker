@@ -180,3 +180,4 @@
         function pauseRainbowMusic() {
             audio.pause();
         }
+
