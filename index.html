@@ -1,236 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-      background: #000;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.css">
+    <style>
+        /* Reset some default styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #1c1c1c; /* Dark background color */
+            color: #fff; /* Text color */
+            overflow: hidden; /* Hide overflow to prevent scrollbars */
+        }
 
-    #particles-js {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-    }
+        body #magicMouseCursor {
+            position: fixed;
+            width: 35px;
+            height: 35px;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            transition: transform .07s,width .3s,height .3s;
+            pointer-events: none;
+        }
 
-    .game-container {
-      position: relative;
-      z-index: 1;
-    }
+        /* Center the profile container */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+        }
 
-    .rocket {
-      width: 120px;
-      height: 120px;
-      background-size: cover;
-      position: absolute;
-      cursor: grab;
-      transform-origin: center;
-      animation: none;
-      user-drag: none;
-    }
+        /* Style the profile image */
+        .profile-image img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%; /* Make it a circle */
+        }
 
-    .rocket.dragging {
-      cursor: grabbing;
-    }
+        /* Style the profile text container */
+        .profile-text-container {
+            background-color: #333; /* Greyish black background color */
+            padding: 0px 30px; /* Less tall, a little wider */
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+        }
 
-    .explosion {
-      width: 80px;
-      height: 80px;
-      position: absolute;
-      background-size: cover;
-      display: none;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-  <title>Draggable Rockets with Particle Background</title>
+        /* Style the profile text */
+        .profile-text {
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+        }
+
+        /* Particle background container */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
-  <div id="particles-js"></div>
-  <div class="game-container"></div>
-  <script>
-    particlesJS("particles-js", {
-      particles: {
-        number: { value: 100 },
-        color: { value: "#ffffff" },
-        shape: { type: "circle" },
-        opacity: { value: 0.5, random: true },
-        size: { value: 3, random: true },
-        move: {
-          enable: true,
-          speed: 2,
-          direction: "bottom",
-          random: true,
-          straight: false,
-          outMode: "out",
-          bounce: false,
-        },
-      },
-      interactivity: {
-        events: {
-          onhover: { enable: true, mode: "repulse" },
-        },
-        modes: { repulse: { distance: 50 } },
-      },
-    });
-
-    const characterImages = [
-      'https://github.com/Lenn106/lenn106.github.io/blob/da5b1a3f58e25391d9124205de83f6868ab63007/sprites/amongusblue.png?raw=true',
-      'https://github.com/Lenn106/lenn106.github.io/blob/da5b1a3f58e25391d9124205de83f6868ab63007/sprites/amongusgreen.png?raw=true',
-      'https://github.com/Lenn106/lenn106.github.io/blob/da5b1a3f58e25391d9124205de83f6868ab63007/sprites/amongusred.png?raw=true',
-      'https://github.com/Lenn106/lenn106.github.io/raw/master/sprites/pinkamongus.png?raw=true'
-    ];
-
-    const gameContainer = document.querySelector('.game-container');
-    const deathSound = new Audio('https://github.com/Lenn106/lenn106.github.io/raw/master/sound-effects/death.mp3');
-    const explosionImage = 'https://github.com/Lenn106/lenn106.github.io/blob/master/sprites/deatheffect.gif?raw=true';
-
-    function createRocket(x, y, pathX, pathY, image) {
-      const rocket = document.createElement('div');
-      rocket.className = 'rocket';
-      rocket.style.left = `${x}px`;
-      rocket.style.top = `${y}px`;
-      rocket.style.backgroundImage = `url("${image}")`;
-
-      rocket.pathX = pathX;
-      rocket.pathY = pathY;
-      rocket.rotation = 0;
-      rocket.deathTimer = null;
-
-      rocket.addEventListener('mousedown', (e) => {
-        if (e.button === 0) {
-          e.preventDefault();
-          rocket.classList.add('dragging');
-          isDragging = true;
-          initialMouseX = e.clientX;
-          initialMouseY = e.clientY;
-          initialRocketX = rocket.offsetLeft;
-          initialRocketY = rocket.offsetTop;
-          rocket.style.animationPlayState = 'paused';
-        }
-      });
-
-      document.addEventListener('mousemove', (e) => {
-        if (isDragging && rocket.classList.contains('dragging')) {
-          const offsetX = e.clientX - initialMouseX;
-          const offsetY = e.clientY - initialMouseY;
-          rocket.style.left = `${initialRocketX + offsetX}px`;
-          rocket.style.top = `${initialRocketY + offsetY}px`;
-        }
-      });
-
-      document.addEventListener('mouseup', () => {
-        if (isDragging && rocket.classList.contains('dragging')) {
-          isDragging = false;
-          rocket.classList.remove('dragging');
-          rocket.style.animationPlayState = 'running';
-        }
-      });
-
-      rocket.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        const x = e.clientX;
-        const y = e.clientY;
-        killRocket(rocket, x, y);
-      });
-
-      gameContainer.appendChild(rocket);
-
-      return rocket;
-    }
-
-    function createExplosion(x, y) {
-      const explosion = document.createElement('div');
-      explosion.className = 'explosion';
-      explosion.style.left = `${x - 40}px`;
-      explosion.style.top = `${y - 40}px`;
-      explosion.style.backgroundImage = `url("${explosionImage}")`;
-      gameContainer.appendChild(explosion);
-      return explosion;
-    }
-
-    function respawnRocket(rocket) {
-      const randomX = Math.random() * (window.innerWidth - 120);
-      const randomY = Math.random() * (window.innerHeight - 120);
-      const randomPathX = Math.random() < 0.5 ? 1 : -1;
-      const randomPathY = Math.random() < 0.5 ? 1 : -1;
-      const randomImage = characterImages[Math.floor(Math.random() * characterImages.length)];
-      rocket.style.left = `${randomX}px`;
-      rocket.style.top = `${randomY}px`;
-
-      rocket.pathX = randomPathX;
-      rocket.pathY = randomPathY;
-      rocket.style.backgroundImage = `url("${randomImage}")`;
-    }
-
-    function killRocket(rocket, x, y) {
-      if (!rocket.deathTimer) {
-        rocket.deathTimer = setTimeout(() => {
-          const explosion = createExplosion(x, y);
-          explosion.style.display = 'block';
-          deathSound.currentTime = 0;
-          deathSound.play();
-
-          respawnRocket(rocket);
-
-          setTimeout(() => {
-            explosion.remove();
-            rocket.deathTimer = null;
-          }, 1000);
-        }, 0);
-      }
-    }
-
-    function checkBounds(rocket) {
-      const rocketRect = rocket.getBoundingClientRect();
-      if (rocketRect.left <= 0 || rocketRect.right >= window.innerWidth) {
-        rocket.pathX = -rocket.pathX;
-      }
-      if (rocketRect.top <= 0 || rocketRect.bottom >= window.innerHeight) {
-        rocket.pathY = -rocket.pathY;
-      }
-    }
-
-    const rockets = [];
-
-    function startAnimation() {
-      for (let i = 0; i < 5; i++) {
-        const randomX = Math.random() * (window.innerWidth - 120);
-        const randomY = Math.random() * (window.innerHeight - 120);
-        const randomPathX = Math.random() < 0.5 ? 1 : -1;
-        const randomPathY = Math.random() < 0.5 ? 1 : -1;
-        const randomImage = characterImages[Math.floor(Math.random() * characterImages.length)];
-        const rocket = createRocket(randomX, randomY, randomPathX, randomPathY, randomImage);
-        rockets.push(rocket);
-      }
-
-      function moveRockets() {
-        rockets.forEach((rocket) => {
-          checkBounds(rocket);
-          rocket.style.transform = `translateX(${rocket.pathX * 2}px) translateY(${rocket.pathY * 2}px) rotate(${rocket.rotation}deg)`;
-          rocket.rotation += 2;
+    <div id="particles-js"></div>
+    <div class="profile-container">
+        <div class="profile-image">
+            <img src="https://yt3.googleusercontent.com/RGNgjcollrMO7omQ0kWqPSnxIk0XVgwLzRa1vLDn3_6kAhV7Fh8lP5s6bAI10OPPPxxjj1l6=s176-c-k-c0x00ffffff-no-rj" alt="Profile Picture">
+        </div>
+        <div class="profile-text-container">
+            <p class="profile-text">lenn106</p>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://res.cloudinary.com/veseylab/raw/upload/v1684982764/magicmouse-2.0.0.cdn.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 100,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#ffffff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    },
+                    "image": {
+                        "src": "img/github.svg",
+                        "width": 100,
+                        "height": 100
+                    }
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 6,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200,
+                        "duration": 0.4
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true
         });
-
-        requestAnimationFrame(moveRockets);
-      }
-
-      moveRockets();
-    }
-
-    let isDragging = false;
-    let initialMouseX = 0;
-    let initialMouseY = 0;
-    let initialRocketX = 0;
-    let initialRocketY = 0;
-
-    startAnimation();
-  </script>
+    </script>
+    <script>
+        new MagicMouse({
+            cursorOuter: 'circle-basic',
+            hoverEffect: 'circle-move',
+            hoverItemMove: true,
+            defaultCursor: true,
+            outerWidth: 40,
+            outerHeight: 40
+        });
+    </script>
 </body>
 </html>
