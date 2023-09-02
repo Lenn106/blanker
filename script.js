@@ -111,7 +111,7 @@
             "retina_detect": true
         });
 
-        // Function to create and animate social media icons
+ 
         function createSocialMediaIcon(imageSrc, link) {
             const icon = document.createElement('img');
             icon.src = imageSrc;
@@ -147,11 +147,10 @@
             icon.animationId = requestAnimationFrame(moveIcon);
         }
 
-        createSocialMediaIcon('images/discord.svg', 'https://discord.gg/W5PZSxaMgk');
+        createSocialMediaIcon('images/discord.svg', 'https://discord.gg/FF5XEU4BZx');
         createSocialMediaIcon('images/yticon.png', 'https://www.youtube.com/@lenn106');
         createSocialMediaIcon('images/github.png', 'https://github.com/lenn106');
 
-        // Rainbow switch functionality
         const rainbowSwitch = document.getElementById('rainbow-switch');
         const profileContainer = document.querySelector('.profile-container');
 
