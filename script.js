@@ -170,7 +170,7 @@
         });
 
         // Rainbow music
-        let audio = new Audio('https://github.com/Lenn106/lenn106.github.io/raw/master/sound/rainbow.mp3');
+        let audio = new Audio('sound/rainbow.mp3');
         audio.loop = true;
 
         function playRainbowMusic() {
