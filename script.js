@@ -147,9 +147,9 @@
             icon.animationId = requestAnimationFrame(moveIcon);
         }
 
-        createSocialMediaIcon('https://www.svgrepo.com/show/353655/discord-icon.svg', 'https://discord.gg/W5PZSxaMgk');
-        createSocialMediaIcon('https://www.iconpacks.net/icons/2/free-youtube-logo-icon-2431-thumb.png', 'https://www.youtube.com/user/lenn106');
-        createSocialMediaIcon('https://cdn-icons-png.flaticon.com/512/25/25231.png', 'https://github.com/lenn106');
+        createSocialMediaIcon('images/discord.svg', 'https://discord.gg/W5PZSxaMgk');
+        createSocialMediaIcon('images/yticon.png', 'https://www.youtube.com/user/lenn106');
+        createSocialMediaIcon('images/github.png', 'https://github.com/lenn106');
 
         // Rainbow switch functionality
         const rainbowSwitch = document.getElementById('rainbow-switch');
